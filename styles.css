@@ -4,59 +4,36 @@ body {
     padding: 0;
 }
 
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 20px;
-    border-bottom: 1px solid #ccc;
-}
-
-.logo {
-    height: 50px;
-}
-
-.controls {
-    display: flex;
-    gap: 20px;
-    align-items: center;
-}
-
-.gig-table {
+.styled-table {
     width: 100%;
     border-collapse: collapse;
+    margin: 25px 0;
+    font-size: 0.9em;
+    border-radius: 5px 5px 0 0;
+    overflow: hidden;
 }
 
-.gig-table th,
-.gig-table td {
-    border: 1px solid #ccc;
-    padding: 8px;
-    text-align: center;
+.styled-table th, .styled-table td {
+    padding: 12px 15px;
+    border: 1px solid #dddddd;
+    text-align: left;
 }
 
-.gig-table th.highlight-column {
-    border-left: 3px solid #333;
-    border-right: 3px solid #333;
+.styled-table thead tr {
+    background-color: #009879;
+    color: #ffffff;
+    text-align: left;
 }
 
-.gig-table .even-row {
-    background-color: #f9f9f9;
+.styled-table tbody tr:nth-child(even) {
+    background-color: #f3f3f3;
 }
 
-.gig-table .odd-row {
-    background-color: #fff;
+.styled-table tbody tr:hover {
+    background-color: #f1f1f1;
 }
 
-.gig-table .highlight-row {
-    background-color: #ffeeba !important;
-}
-
-.loading {
-    color: blue;
-    text-align: center;
-}
-
-.error {
-    color: red;
-    text-align: center;
+.styled-table tbody tr .current-week {
+    border-left: 3px solid #6c757d;
+    border-right: 3px solid #6c757d;
 }
