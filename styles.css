@@ -1,29 +1,3 @@
-thead th {
-    position: sticky;
-    top: 0;
-    background-color: #006400; /* Or match your table background */
-    color: white;
-    padding: 10px;
-    text-align: left;
-    z-index: 10; /* Keep this z-index lower than .venue-column */
-}
-
-th.venue-column {
-    position: sticky;
-    left: 0;
-    background-color: white; /* Or match your table background */
-    z-index: 11; /* Ensure this is higher than the header z-index */
-    text-align: left;
-}
-
-td.venue-column {
-    position: sticky;
-    left: 0;
-    background-color: white; /* Match table background if needed */
-    z-index: 11; /* Ensure this is higher than the header z-index */
-    text-align: left;
-}
-
 /* Body Styles */
 body {
     font-family: "Open Sans", sans-serif;
@@ -56,7 +30,16 @@ h1 {
     height: auto;
 }
 
-.header .controls {
+.controls-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.controls {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -86,8 +69,7 @@ button:hover {
 }
 
 /* Inputs and Select */
-input,
-select {
+input, select {
     padding: 5px;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -112,15 +94,15 @@ thead th {
     background-color: #006400;
     color: white;
     padding: 10px;
-    text-align: center;
+    text-align: left;
     z-index: 10;
 }
 
 tbody td {
-    text-align: center;
+    text-align: left;
     padding: 10px;
     border: 1px solid #ddd;
-    white-space: nowrap; /* Prevent wrapping */
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
@@ -129,23 +111,21 @@ tbody tr:nth-child(even) {
     background-color: #f9f9f9;
 }
 
-tbody tr:hover {
-    background-color: #f1f1f1;
+table tbody tr:hover {  /* Add 'table' to the selector */
+    background-color: #e0f7fa;
 }
 
-/* Highlight for the Current Week */
 .current-week {
     border-left: 2px solid #444;
     border-right: 2px solid #444;
 }
 
-/* Fixed Column for Venue Names */
+/* Fixed Column */
 .venue-column {
     position: sticky;
     left: 0;
     background-color: white;
     z-index: 2;
-    text-align: left;
 }
 
 /* Progress Bar */
