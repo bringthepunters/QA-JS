@@ -1,3 +1,29 @@
+thead th {
+    position: sticky;
+    top: 0;
+    background-color: #006400; /* Or match your table background */
+    color: white;
+    padding: 10px;
+    text-align: center;
+    z-index: 10; /* Keep this z-index lower than .venue-column */
+}
+
+th.venue-column {
+    position: sticky;
+    left: 0;
+    background-color: white; /* Or match your table background */
+    z-index: 11; /* Ensure this is higher than the header z-index */
+    text-align: left;
+}
+
+td.venue-column {
+    position: sticky;
+    left: 0;
+    background-color: white; /* Match table background if needed */
+    z-index: 11; /* Ensure this is higher than the header z-index */
+    text-align: left;
+}
+
 /* Body Styles */
 body {
     font-family: "Open Sans", sans-serif;
