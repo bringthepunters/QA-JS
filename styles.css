@@ -1,0 +1,62 @@
+body {
+    font-family: "Open Sans", sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    border-bottom: 1px solid #ccc;
+}
+
+.logo {
+    height: 50px;
+}
+
+.controls {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.gig-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.gig-table th,
+.gig-table td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: center;
+}
+
+.gig-table th.highlight-column {
+    border-left: 3px solid #333;
+    border-right: 3px solid #333;
+}
+
+.gig-table .even-row {
+    background-color: #f9f9f9;
+}
+
+.gig-table .odd-row {
+    background-color: #fff;
+}
+
+.gig-table .highlight-row {
+    background-color: #ffeeba !important;
+}
+
+.loading {
+    color: blue;
+    text-align: center;
+}
+
+.error {
+    color: red;
+    text-align: center;
+}
