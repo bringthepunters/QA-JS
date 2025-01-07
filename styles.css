@@ -1,91 +1,141 @@
+/* Body Styles */
 body {
     font-family: "Open Sans", sans-serif;
     margin: 0;
     padding: 0;
-  }
-  
-  .container {
+    box-sizing: border-box;
+}
+
+/* Container */
+.container {
     margin: 0 auto;
     max-width: 90%;
-  }
-  
-  h1 {
+}
+
+/* Header */
+h1 {
     text-align: center;
-    margin: 20px 0;
-  }
-  
-  .header {
+    margin-bottom: 20px;
+}
+
+.header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-  }
-  
-  .header img {
+    margin-bottom: 20px;
+}
+
+.header img.logo {
     width: 60px;
     height: auto;
-  }
-  
-  .controls {
-    margin: 20px 0;
+}
+
+.header .controls {
     display: flex;
+    align-items: center;
     gap: 10px;
-    flex-wrap: wrap;
-  }
-  
-  button {
+}
+
+/* Buttons */
+button {
     padding: 5px 15px;
     border: none;
     cursor: pointer;
     font-size: 14px;
     border-radius: 5px;
-  }
-  
-  button.green {
+}
+
+button.green {
     background-color: #28a745;
     color: white;
-  }
-  
-  button.blue {
+}
+
+button.blue {
     background-color: #007bff;
     color: white;
-  }
-  
-  button:hover {
+}
+
+button:hover {
     opacity: 0.9;
-  }
-  
-  .table-container {
-    overflow-x: auto;
-  }
-  
-  table {
+}
+
+/* Inputs and Select */
+input,
+select {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* Table Styling */
+.table-container {
+    overflow: auto;
+    margin-top: 20px;
+}
+
+table {
     width: 100%;
     border-collapse: collapse;
-  }
-  
-  th {
+    margin-top: 20px;
+    table-layout: fixed;
+}
+
+thead th {
+    position: sticky;
+    top: 0;
     background-color: #006400;
     color: white;
     padding: 10px;
     text-align: center;
-  }
-  
-  td {
+    z-index: 10;
+}
+
+tbody td {
     text-align: center;
     padding: 10px;
     border: 1px solid #ddd;
-  }
-  
-  tr:nth-child(even) {
+    white-space: nowrap; /* Prevent wrapping */
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+tbody tr:nth-child(even) {
     background-color: #f9f9f9;
-  }
-  
-  tr:hover {
+}
+
+tbody tr:hover {
     background-color: #f1f1f1;
-  }
-  
-  .current-week {
+}
+
+/* Highlight for the Current Week */
+.current-week {
     border-left: 2px solid #444;
     border-right: 2px solid #444;
-  }
-  
+}
+
+/* Fixed Column for Venue Names */
+.venue-column {
+    position: sticky;
+    left: 0;
+    background-color: white;
+    z-index: 2;
+    text-align: left;
+}
+
+/* Progress Bar */
+.progress-bar {
+    position: relative;
+    height: 10px;
+    width: 100%;
+    background-color: #e0e0e0;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-top: 5px;
+}
+
+#progress-bar-fill {
+    height: 100%;
+    width: 0;
+    background-color: #007bff;
+    transition: width 0.3s ease;
+}
