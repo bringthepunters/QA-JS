@@ -1,5 +1,7 @@
 body {
     font-family: "Open Sans", sans-serif;
+    margin: 0;
+    padding: 0;
   }
   
   .container {
@@ -9,20 +11,51 @@ body {
   
   h1 {
     text-align: center;
+    margin: 20px 0;
   }
   
-  header {
+  .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
   
-  img {
+  .header img {
     width: 60px;
+    height: auto;
   }
   
   .controls {
-    margin: 10px 0;
+    margin: 20px 0;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  
+  button {
+    padding: 5px 15px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    border-radius: 5px;
+  }
+  
+  button.green {
+    background-color: #28a745;
+    color: white;
+  }
+  
+  button.blue {
+    background-color: #007bff;
+    color: white;
+  }
+  
+  button:hover {
+    opacity: 0.9;
+  }
+  
+  .table-container {
+    overflow-x: auto;
   }
   
   table {
@@ -34,14 +67,25 @@ body {
     background-color: #006400;
     color: white;
     padding: 10px;
+    text-align: center;
   }
   
   td {
-    padding: 10px;
     text-align: center;
+    padding: 10px;
+    border: 1px solid #ddd;
   }
   
   tr:nth-child(even) {
     background-color: #f9f9f9;
+  }
+  
+  tr:hover {
+    background-color: #f1f1f1;
+  }
+  
+  .current-week {
+    border-left: 2px solid #444;
+    border-right: 2px solid #444;
   }
   

@@ -9,6 +9,9 @@ endDate.setDate(currentDate.getDate() + WEEKS_FUTURE * 7);
 
 async function fetchGigs(location) {
   const gigs = [];
+  const loadingMessage = document.getElementById("loading-message");
+  loadingMessage.classList.remove("hidden");
+
   let weekStart = new Date(startDate);
   while (weekStart <= endDate) {
     const weekEnd = new Date(weekStart);
@@ -25,6 +28,8 @@ async function fetchGigs(location) {
     }
     weekStart.setDate(weekStart.getDate() + 7);
   }
+
+  loadingMessage.classList.add("hidden");
   return gigs;
 }
 
@@ -88,6 +93,9 @@ function renderTable(gigs) {
       const count = venue.weeks[week];
       weekCell.textContent = count > 0 ? count : "";
       weekCell.style.backgroundColor = count > 0 ? "#c8faed" : "white";
+      if (week === "This week") {
+        weekCell.classList.add("current-week");
+      }
       row.appendChild(weekCell);
     });
 

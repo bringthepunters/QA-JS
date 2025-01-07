@@ -9,22 +9,23 @@
 </head>
 <body>
   <div class="container">
-    <div class="header">
-      <img src="logo.png" alt="Live Music Locator Logo">
+    <header class="header">
+      <img src="https://generator.lml.live/LML_2_RGB.png" alt="Live Music Locator Logo" title="Live Music Locator">
       <h1>Live Music Locator QA Visualisation</h1>
       <div class="controls">
-        <label for="location-select">Location:</label>
-        <select id="location-select">
+        <label for="location-select" title="Choose your location">Location:</label>
+        <select id="location-select" title="Select a location">
           <option value="melbourne">Melbourne</option>
           <option value="goldfields">Goldfields</option>
         </select>
-        <button id="refresh-button" class="blue">Refresh</button>
+        <button id="refresh-button" class="blue" title="Refresh the data">Refresh</button>
       </div>
-    </div>
+    </header>
     <div class="controls">
-      <input type="text" id="filter-input" placeholder="Filter by venue name">
-      <button id="clear-filter-button" class="green">Clear Filter</button>
+      <input type="text" id="filter-input" placeholder="Filter by venue name" title="Enter a venue name to filter the list">
+      <button id="clear-filter-button" class="green" title="Clear the filter">Clear Filter</button>
     </div>
+    <div id="loading-message" class="hidden" title="Data is being fetched. Please wait...">Loading data, please wait...</div>
     <div id="gig-table" class="table-container"></div>
   </div>
 </body>
