@@ -100,9 +100,12 @@ function renderTable(gigs) {
     headerRow.appendChild(weekHeader);
   });
 
-  table.appendChild(headerRow);
+  const thead = document.createElement("thead");
+  thead.appendChild(headerRow);
+  table.appendChild(thead);
 
   // Add table rows for each venue
+  const tbody = document.createElement("tbody");
   Object.values(venues).forEach((venue) => {
     const row = document.createElement("tr");
     const venueCell = document.createElement("td");
@@ -122,8 +125,10 @@ function renderTable(gigs) {
       row.appendChild(weekCell);
     });
 
-    table.appendChild(row);
+    tbody.appendChild(row);
   });
+
+  table.appendChild(tbody);
 
   // Update DOM
   const gigTableContainer = document.getElementById("gig-table");
@@ -142,7 +147,7 @@ document.getElementById("filter-input").addEventListener("input", (event) => {
   const filterText = event.target.value.toLowerCase();
   const rows = document.querySelectorAll("tbody tr");
   rows.forEach((row) => {
-    const venueName = row.cells[0].textContent.toLowerCase();
+    const venueName = row.querySelector(".venue-column").textContent.toLowerCase();
     row.style.display = venueName.includes(filterText) ? "" : "none";
   });
 });
@@ -158,4 +163,4 @@ document.getElementById("clear-filter-button").addEventListener("click", () => {
 document.getElementById("refresh-button").addEventListener("click", initializeApp);
 
 // Initialize the app on page load
-initializeApp();
+document.addEventListener("DOMContentLoaded", initializeApp);
