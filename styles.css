@@ -4,7 +4,7 @@ thead th {
     background-color: #006400; /* Or match your table background */
     color: white;
     padding: 10px;
-    text-align: center;
+    text-align: left;
     z-index: 10; /* Keep this z-index lower than .venue-column */
 }
 
