@@ -1,36 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Music Locator QA Visualisation</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Music Locator QA Visualisation</title>
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="index.js"></script>
 </head>
 <body>
-    <div class="container">
-        <!-- Header with logo -->
-        <header>
-            <img src="logo.png" alt="Live Music Locator Logo" class="logo">
-            <h1>Live Music Locator QA Visualisation</h1>
-        </header>
-        <div class="controls">
-            <div class="filter-group">
-                <input type="text" id="filter-input" placeholder="Filter by venue name" title="Filter venues by name">
-                <button id="clear-filter-button" title="Clear the venue filter">Clear Filter</button>
-            </div>
-            <div class="location-group">
-                <label for="location-select" title="Choose a location">Location:</label>
-                <select id="location-select" title="Select a location">
-                    <option value="melbourne">Melbourne</option>
-                    <option value="goldfields">Goldfields</option>
-                </select>
-                <button id="refresh-button" title="Refresh gig data and update the table">Refresh</button>
-            </div>
-        </div>
-        <div id="loading-message" class="loading-message">Loading data, please wait...</div>
-        <div id="error-message" class="error-message"></div>
-        <div id="gig-table" class="gig-table"></div>
+  <div class="container">
+    <div class="header">
+      <img src="logo.png" alt="Live Music Locator Logo">
+      <h1>Live Music Locator QA Visualisation</h1>
+      <div class="controls">
+        <label for="location-select">Location:</label>
+        <select id="location-select">
+          <option value="melbourne">Melbourne</option>
+          <option value="goldfields">Goldfields</option>
+        </select>
+        <button id="refresh-button" class="blue">Refresh</button>
+      </div>
     </div>
-    <script src="index.js" defer></script>
+    <div class="controls">
+      <input type="text" id="filter-input" placeholder="Filter by venue name">
+      <button id="clear-filter-button" class="green">Clear Filter</button>
+    </div>
+    <div id="gig-table" class="table-container"></div>
+  </div>
 </body>
 </html>
