@@ -81,6 +81,17 @@ input, select {
     margin-top: 20px;
 }
 
+/* Update table cell alignment for all columns except venue */
+td:not(.venue-column), 
+th:not(.venue-column) {
+    text-align: center;
+}
+
+/* Match header text to progress bar blue */
+h1 {
+    color: #007bff;
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
