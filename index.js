@@ -75,12 +75,18 @@ function renderTable(gigs) {
 
     if (!venues[venueId]) {
       venues[venueId] = { name: venueName, weeks: {} };
-      weeks.forEach((week) => (venues[venueId].weeks[week] = 0));
+      weeks.forEach((week) => {
+        venues[venueId].weeks[week] = { count: 0, gigNames: [] };
+      });
     }
 
     const diffWeeks = Math.round((currentDate - weekStart) / (7 * 24 * 60 * 60 * 1000));
     const label = diffWeeks === 0 ? "<b>This week</b>" : diffWeeks > 0 ? `-${diffWeeks}w` : `+${Math.abs(diffWeeks)}w`;
-    venues[venueId].weeks[label] = (venues[venueId].weeks[label] || 0) + 1;
+
+    if (venues[venueId].weeks[label]) {
+      venues[venueId].weeks[label].count++;
+      venues[venueId].weeks[label].gigNames.push(gig.name);
+    }
   });
 
   // Create table structure
@@ -116,11 +122,15 @@ function renderTable(gigs) {
 
     weeks.forEach((week) => {
       const weekCell = document.createElement("td");
-      const count = venue.weeks[week];
-      weekCell.textContent = count > 0 ? count : "";
-      weekCell.style.backgroundColor = count > 0 ? "#c8faed" : "white";
+      const weekData = venue.weeks[week];
+      weekCell.textContent = weekData.count > 0 ? weekData.count : "";
+      weekCell.style.backgroundColor = weekData.count > 0 ? "#c8faed" : "white";
       if (week === "<b>This week</b>") {
         weekCell.classList.add("current-week");
+      }
+      // Add tooltip with gig names
+      if (weekData.gigNames.length > 0) {
+        weekCell.title = weekData.gigNames.join("\n"); // Each gig on a new line
       }
       row.appendChild(weekCell);
     });
