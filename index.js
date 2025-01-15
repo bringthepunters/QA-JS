@@ -109,7 +109,6 @@ function renderTable(gigs) {
     if (!venues[venueId]) {
       venues[venueId] = { name: venueName, weeks: {} };
       weeks.forEach((week) => {
-        // We'll store both counts and the gigs array so we can inspect genre_tags
         venues[venueId].weeks[week] = { count: 0, gigNames: [], gigs: [] };
       });
     }
@@ -141,8 +140,6 @@ function renderTable(gigs) {
   const venueHeader = document.createElement("th");
   venueHeader.textContent = "Venue";
   venueHeader.classList.add("venue-column");
-
-  // Dynamic width based on the longest venue name
   venueHeader.style.width = `${maxVenueNameLength * 7 + 20}px`;
   headerRow.appendChild(venueHeader);
 
@@ -164,7 +161,7 @@ function renderTable(gigs) {
     const venueCell = document.createElement("td");
     venueCell.textContent = venue.name;
     venueCell.classList.add("venue-column");
-    venueCell.style.whiteSpace = "nowrap"; // Prevent wrapping
+    venueCell.style.whiteSpace = "nowrap";
     row.appendChild(venueCell);
 
     // Build cells for each week
@@ -176,11 +173,11 @@ function renderTable(gigs) {
       weekCell.style.backgroundColor =
         weekData.count > 0 ? "#c8faed" : "white";
 
-      // Highlight the current week with a bold border
+      // Highlight the current week
       if (week === "<b>This week</b>") {
         weekCell.classList.add("current-week");
 
-        // NEW FEATURE: if *any* gig in the current week has an empty/missing genre_tags, make text red
+        // If any gig in the current week has missing genres, make the cell text red
         const hasMissingGenres = weekData.gigs.some(
           (g) => !g.genre_tags || g.genre_tags.length === 0
         );
@@ -189,10 +186,19 @@ function renderTable(gigs) {
         }
       }
 
-      // Add tooltip with gig names (each gig on a new line)
-      if (weekData.gigNames.length > 0) {
-        weekCell.title = weekData.gigNames.join("\n");
+      // Add tooltip with gig names (using custom tooltip)
+      if (weekData.gigs.length > 0) {
+        const tooltipContent = weekData.gigs
+          .map(
+            (gig) =>
+              `<span style="color: ${
+                gig.genre_tags && gig.genre_tags.length > 0 ? "black" : "red"
+              }">${gig.name}</span>`
+          )
+          .join("<br>");
+        weekCell.setAttribute("data-tooltip", tooltipContent);
       }
+
       row.appendChild(weekCell);
     });
 
@@ -205,6 +211,31 @@ function renderTable(gigs) {
   const gigTableContainer = document.getElementById("gig-table");
   gigTableContainer.innerHTML = "";
   gigTableContainer.appendChild(table);
+
+  // Initialize custom tooltips
+  initializeTooltips();
+}
+
+/**
+ * Initialize custom tooltips using CSS.
+ */
+function initializeTooltips() {
+  document.querySelectorAll("[data-tooltip]").forEach((cell) => {
+    cell.addEventListener("mouseover", (event) => {
+      const tooltip = document.createElement("div");
+      tooltip.className = "custom-tooltip";
+      tooltip.innerHTML = event.target.getAttribute("data-tooltip");
+      document.body.appendChild(tooltip);
+
+      const rect = event.target.getBoundingClientRect();
+      tooltip.style.left = `${rect.left + window.scrollX}px`;
+      tooltip.style.top = `${rect.bottom + window.scrollY}px`;
+
+      cell.addEventListener("mouseout", () => {
+        tooltip.remove();
+      });
+    });
+  });
 }
 
 /**
