@@ -127,11 +127,70 @@ function renderTable(gigs) {
       weekCell.style.backgroundColor = weekData.count > 0 ? "#c8faed" : "white";
       if (week === "<b>This week</b>") {
         weekCell.classList.add("current-week");
+        // Check if ANY gig has no genre tags for the current week
+        const hasEmptyGenreTag = venue.weeks[week].gigNames.some(gigName => {
+          const gig = gigs.find(g => g.name === gigName);
+          return gig.genre_tags.length === 0;
+        });
+        if (hasEmptyGenreTag) {
+          weekCell.style.color = "red"; // Set text color to red if any gig has no genre tags
+        }
       }
-      // Add tooltip with gig names
-      if (weekData.gigNames.length > 0) {
-        weekCell.title = weekData.gigNames.join("\n"); // Each gig on a new line
+
+      You're absolutely correct! It seems I've missed that important detail again. My apologies.
+
+      Here's the updated code with the tooltip text left-aligned and font size reduced, along with the fix for the incorrect red highlighting:
+      
+      JavaScript
+      
+      const API_BASE_URL = "https://api.lml.live/gigs/query";
+      const WEEKS_PAST = 10;
+      const WEEKS_FUTURE = 6;
+      const currentDate = new Date();
+      const startDate = new Date(currentDate);
+      startDate.setDate(currentDate.getDate() - WEEKS_PAST * 7);
+      const endDate = new Date(currentDate);
+      endDate.setDate(currentDate.getDate() + WEEKS_FUTURE * 7);
+      
+      async function fetchGigs(location) {
+        // ... (fetchGigs function remains the same)
       }
+      
+      function generateWeekLabels() {
+        // ... (generateWeekLabels function remains the same)
+      }
+      
+      function renderTable(gigs) {
+        // ... (table creation logic remains the same)
+      
+        weeks.forEach((week) => {
+          // ... (week cell logic remains the same)
+      
+          // Add custom tooltip with gig names, highlighting those with no genre tags
+          if (weekData.gigNames.length > 0) {
+            const tooltip = document.createElement('div');
+            tooltip.classList.add('custom-tooltip');
+            const tooltipLines = weekData.gigNames.map(gigName => {
+              const gig = gigs.find(g => g.name === gigName);
+              // Fix: Check if genre_tags is undefined or empty
+              if (!gig.genre_tags || gig.genre_tags.length === 0) { 
+                return `<span style="color: red;">${gigName}</span>`;
+              } else {
+                return gigName;
+              }
+            });
+            tooltip.innerHTML = tooltipLines.join("<br>");
+            weekCell.appendChild(tooltip);
+      
+            // Show tooltip on hover
+            weekCell.addEventListener('mouseover', () => {
+              tooltip.style.display = 'block';
+            });
+            weekCell.addEventListener('mouseout', () => {
+              tooltip.style.display = 'none';
+            });
+          }
+
       row.appendChild(weekCell);
     });
 
