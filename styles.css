@@ -1,105 +1,105 @@
+/***** CSS *****/
+
 /* Body Styles */
 body {
     font-family: "Open Sans", sans-serif;
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-}
-
-/* Container */
-.container {
+  }
+  
+  /* Container */
+  .container {
     margin: 0 auto;
     max-width: 90%;
-}
-
-/* Header */
-h1 {
+  }
+  
+  /* Header */
+  h1 {
     text-align: center;
     margin-bottom: 20px;
-}
-
-.header {
+    /* Match header text to progress bar blue */
+    color: #007bff;
+  }
+  
+  .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
-}
-
-.header img.logo {
+  }
+  
+  .header img.logo {
     width: 60px;
     height: auto;
-}
-
-.controls-wrapper {
+  }
+  
+  .controls-wrapper {
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
     gap: 10px;
     margin-bottom: 10px;
-}
-
-.controls {
+  }
+  
+  .controls {
     display: flex;
     align-items: center;
     gap: 10px;
-}
-
-/* Buttons */
-button {
+  }
+  
+  /* Buttons */
+  button {
     padding: 5px 15px;
     border: none;
     cursor: pointer;
     font-size: 14px;
     border-radius: 5px;
-}
-
-button.green {
+  }
+  
+  button.green {
     background-color: #28a745;
     color: white;
-}
-
-button.blue {
+  }
+  
+  button.blue {
     background-color: #007bff;
     color: white;
-}
-
-button:hover {
+  }
+  
+  button:hover {
     opacity: 0.9;
-}
-
-/* Inputs and Select */
-input, select {
+  }
+  
+  /* Inputs and Select */
+  input,
+  select {
     padding: 5px;
     border: 1px solid #ccc;
     border-radius: 5px;
-}
-
-/* Table Styling */
-.table-container {
+  }
+  
+  /* Table Styling */
+  .table-container {
     overflow: auto;
     margin-top: 20px;
-}
-
-/* Update table cell alignment for all columns except venue */
-td:not(.venue-column), 
-th:not(.venue-column) {
+  }
+  
+  /* Update table cell alignment for all columns except venue */
+  td:not(.venue-column),
+  th:not(.venue-column) {
     text-align: center;
-}
-
-/* Match header text to progress bar blue */
-h1 {
-    color: #007bff;
-}
-
-table {
+  }
+  
+  table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
     table-layout: fixed;
-}
-
-thead th {
+  }
+  
+  thead th {
     position: sticky;
     top: 0;
     background-color: #006400;
@@ -107,40 +107,42 @@ thead th {
     padding: 10px;
     text-align: left;
     z-index: 10;
-}
-
-tbody td {
+  }
+  
+  tbody td {
     text-align: left;
     padding: 10px;
     border: 1px solid #ddd;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-}
-
-tbody tr:nth-child(even) {
+  }
+  
+  tbody tr:nth-child(even) {
     background-color: #f9f9f9;
-}
-
-table tbody tr:hover {  /* Add 'table' to the selector */
+  }
+  
+  /* Highlight row on hover */
+  table tbody tr:hover {
     background-color: #e0f7fa;
-}
-
-.current-week {
+  }
+  
+  /* Current Week Column Borders */
+  .current-week {
     border-left: 2px solid #444;
     border-right: 2px solid #444;
-}
-
-/* Fixed Column */
-.venue-column {
+  }
+  
+  /* Fixed Column */
+  .venue-column {
     position: sticky;
     left: 0;
     background-color: white;
     z-index: 2;
-}
-
-/* Progress Bar */
-.progress-bar {
+  }
+  
+  /* Progress Bar */
+  .progress-bar {
     position: relative;
     height: 10px;
     width: 100%;
@@ -148,30 +150,17 @@ table tbody tr:hover {  /* Add 'table' to the selector */
     border-radius: 5px;
     overflow: hidden;
     margin-top: 5px;
-}
-
-.custom-tooltip {
-    display: none;
-    position: absolute;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    padding: 5px;
-    z-index: 100; /* Ensure tooltip is on top */
-  }
-  .custom-tooltip {
-    display: none;
-    position: absolute;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    padding: 5px;
-    z-index: 100; 
-    text-align: left; /* Left align tooltip text */
-    font-size: 14px; /* Adjust font size as needed */
   }
   
-#progress-bar-fill {
+  #progress-bar-fill {
     height: 100%;
     width: 0;
     background-color: #007bff;
     transition: width 0.3s ease;
-}
+  }
+  
+  /* Loading Text */
+  #loading-message {
+    font-weight: bold;
+  }
+  

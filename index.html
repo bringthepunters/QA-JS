@@ -1,18 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Live Music Locator QA Visualisation</title>
-  <link rel="stylesheet" href="styles.css">
-  <link rel="icon" href="https://generator.lml.live/favicon.ico">
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="https://generator.lml.live/favicon.ico" />
   <script defer src="index.js"></script>
 </head>
 <body>
   <div class="container">
     <!-- Header Section -->
     <div class="header">
-      <img src="https://generator.lml.live/LML_2_RGB.png" alt="Live Music Locator Logo" class="logo" title="Live Music Locator">
+      <img
+        src="https://generator.lml.live/LML_2_RGB.png"
+        alt="Live Music Locator Logo"
+        class="logo"
+        title="Live Music Locator"
+      />
       <h1>Live Music Locator QA Visualisation</h1>
     </div>
 
@@ -20,18 +25,37 @@
     <div class="controls-wrapper">
       <!-- Filter Section -->
       <div class="controls">
-        <input type="text" id="filter-input" placeholder="Filter by venue name" title="Filter the venues displayed in the table">
-        <button id="clear-filter-button" class="green" title="Clear the venue filter and display all venues">Clear Filter</button>
+        <input
+          type="text"
+          id="filter-input"
+          placeholder="Filter by venue name"
+          title="Filter the venues displayed in the table"
+        />
+        <button
+          id="clear-filter-button"
+          class="green"
+          title="Clear the venue filter and display all venues"
+        >
+          Clear Filter
+        </button>
       </div>
-      
+
       <!-- Location and Refresh Section -->
       <div class="controls">
-        <label for="location-select" title="Choose a location to view gigs">Location:</label>
+        <label for="location-select" title="Choose a location to view gigs"
+          >Location:</label
+        >
         <select id="location-select" title="Select a location">
           <option value="melbourne">Melbourne</option>
           <option value="goldfields">Goldfields</option>
         </select>
-        <button id="refresh-button" class="blue" title="Refresh the gig data and update the table">Refresh</button>
+        <button
+          id="refresh-button"
+          class="blue"
+          title="Refresh the gig data and update the table"
+        >
+          Refresh
+        </button>
       </div>
     </div>
 
