@@ -158,7 +158,17 @@ table tbody tr:hover {  /* Add 'table' to the selector */
     padding: 5px;
     z-index: 100; /* Ensure tooltip is on top */
   }
-
+  .custom-tooltip {
+    display: none;
+    position: absolute;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    padding: 5px;
+    z-index: 100; 
+    text-align: left; /* Left align tooltip text */
+    font-size: 14px; /* Adjust font size as needed */
+  }
+  
 #progress-bar-fill {
     height: 100%;
     width: 0;
