@@ -5,59 +5,70 @@ const API_BASE_URL = "https://api.lml.live/gigs/query";
 const WEEKS_PAST = 10;
 const WEEKS_FUTURE = 6;
 
-const currentDate = new Date();
-const startDate = new Date(currentDate);
-startDate.setDate(currentDate.getDate() - WEEKS_PAST * 7);
+// Helper function to get the start of the week (Monday 4am)
+function getWeekStart(date) {
+    const result = new Date(date);
+    const day = result.getDay();
+    const diff = result.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
+    result.setDate(diff);
+    result.setHours(4, 0, 0, 0);
+    return result;
+}
 
-const endDate = new Date(currentDate);
-endDate.setDate(currentDate.getDate() + WEEKS_FUTURE * 7);
+const currentDate = new Date();
+const startDate = getWeekStart(new Date(currentDate));
+startDate.setDate(startDate.getDate() - WEEKS_PAST * 7);
+
+const endDate = getWeekStart(new Date(currentDate));
+endDate.setDate(endDate.getDate() + WEEKS_FUTURE * 7);
 
 /**
  * Fetch gigs from the API week by week, updating the progress bar as we go.
  */
 async function fetchGigs(location) {
-  const gigs = [];
-  let weekStart = new Date(startDate);
+    const gigs = [];
+    let weekStart = new Date(startDate);
 
-  const progressBar = document.getElementById("progress-bar-fill");
-  const progressMessage = document.getElementById("loading-message");
-  const progressCount = document.getElementById("progress-count");
+    const progressBar = document.getElementById("progress-bar-fill");
+    const progressMessage = document.getElementById("loading-message");
+    const progressCount = document.getElementById("progress-count");
 
-  // Show loading message and initialize progress
-  progressMessage.style.display = "block";
-  let totalWeeks = WEEKS_PAST + WEEKS_FUTURE + 1;
-  let loadedWeeks = 0;
+    // Show loading message and initialize progress
+    progressMessage.style.display = "block";
+    let totalWeeks = WEEKS_PAST + WEEKS_FUTURE + 1;
+    let loadedWeeks = 0;
 
-  while (weekStart <= endDate) {
-    const weekEnd = new Date(weekStart);
-    weekEnd.setDate(weekStart.getDate() + 6);
+    while (weekStart <= endDate) {
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekStart.getDate() + 7); // Full week
+        weekEnd.setHours(3, 59, 59, 999); // End at 3:59:59.999am next Monday
 
-    const url = `${API_BASE_URL}?location=${location}&date_from=${weekStart
-      .toISOString()
-      .split("T")[0]}&date_to=${weekEnd.toISOString().split("T")[0]}`;
+        const url = `${API_BASE_URL}?location=${location}&date_from=${weekStart
+            .toISOString()
+            .split(".")[0]}Z&date_to=${weekEnd.toISOString().split(".")[0]}Z`;
 
-    try {
-      const response = await fetch(url);
-      if (response.ok) {
-        const weekGigs = await response.json();
-        gigs.push(...weekGigs);
-      }
-    } catch (error) {
-      console.error("Error fetching data: ", error);
+        try {
+            const response = await fetch(url);
+            if (response.ok) {
+                const weekGigs = await response.json();
+                gigs.push(...weekGigs);
+            }
+        } catch (error) {
+            console.error("Error fetching data: ", error);
+        }
+
+        // Update progress bar and message
+        loadedWeeks++;
+        const progress = Math.round((loadedWeeks / totalWeeks) * 100);
+        progressBar.style.width = `${progress}%`;
+        progressCount.textContent = `${progress}%`;
+
+        weekStart.setDate(weekStart.getDate() + 7);
     }
 
-    // Update progress bar and message
-    loadedWeeks++;
-    const progress = Math.round((loadedWeeks / totalWeeks) * 100);
-    progressBar.style.width = `${progress}%`;
-    progressCount.textContent = `${progress}%`;
-
-    weekStart.setDate(weekStart.getDate() + 7);
-  }
-
-  // Hide loading message after completion
-  progressMessage.style.display = "none";
-  return gigs;
+    // Hide loading message after completion
+    progressMessage.style.display = "none";
+    return gigs;
 }
 
 /**
@@ -65,23 +76,24 @@ async function fetchGigs(location) {
  * e.g., -10w, -9w, ..., <b>This week</b>, +1w, ...
  */
 function generateWeekLabels() {
-  const labels = [];
-  let weekStart = new Date(startDate);
+    const labels = [];
+    let weekStart = new Date(startDate);
+    const currentWeekStart = getWeekStart(currentDate);
 
-  while (weekStart <= endDate) {
-    const diffWeeks = Math.round(
-      (currentDate - weekStart) / (7 * 24 * 60 * 60 * 1000)
-    );
-    labels.push(
-      diffWeeks === 0
-        ? "<b>This week</b>"
-        : diffWeeks > 0
-        ? `-${diffWeeks}w`
-        : `+${Math.abs(diffWeeks)}w`
-    );
-    weekStart.setDate(weekStart.getDate() + 7);
-  }
-  return labels;
+    while (weekStart <= endDate) {
+        const diffWeeks = Math.round(
+            (weekStart - currentWeekStart) / (7 * 24 * 60 * 60 * 1000)
+        );
+        labels.push(
+            diffWeeks === 0
+                ? "<b>This week</b>"
+                : diffWeeks < 0
+                    ? `${diffWeeks}w`
+                    : `+${diffWeeks}w`
+        );
+        weekStart.setDate(weekStart.getDate() + 7);
+    }
+    return labels;
 }
 
 /**
@@ -89,133 +101,129 @@ function generateWeekLabels() {
  * Each row corresponds to a venue, and columns correspond to each week.
  */
 function renderTable(gigs) {
-  const venues = {};
-  const weeks = generateWeekLabels();
-  let maxVenueNameLength = 0;
+    const venues = {};
+    const weeks = generateWeekLabels();
+    let maxVenueNameLength = 0;
 
-  // Prepare a structure for each venue to hold gig counts/weeks
-  gigs.forEach((gig) => {
-    const venueId = gig.venue.id;
-    const venueName = gig.venue.name;
-    const gigDate = new Date(gig.date);
+    // Prepare a structure for each venue to hold gig counts/weeks
+    gigs.forEach((gig) => {
+        const venueId = gig.venue.id;
+        const venueName = gig.venue.name;
+        const gigDate = new Date(gig.date);
 
-    // Identify the "week start" for this gig (Mon-Sun or Sun-Sat, depending on your needs)
-    const weekStart = new Date(gigDate);
-    weekStart.setDate(gigDate.getDate() - gigDate.getDay()); // sets to Sunday start
+        // Get the week start (Monday 4am) for this gig
+        const weekStart = getWeekStart(gigDate);
+        
+        maxVenueNameLength = Math.max(maxVenueNameLength, venueName.length);
 
-    maxVenueNameLength = Math.max(maxVenueNameLength, venueName.length);
-
-    // Initialize the venue if it doesn't exist
-    if (!venues[venueId]) {
-      venues[venueId] = { name: venueName, weeks: {} };
-      weeks.forEach((week) => {
-        venues[venueId].weeks[week] = { count: 0, gigNames: [], gigs: [] };
-      });
-    }
-
-    // Determine the label (the textual representation of that week vs current date)
-    const diffWeeks = Math.round(
-      (currentDate - weekStart) / (7 * 24 * 60 * 60 * 1000)
-    );
-    const label =
-      diffWeeks === 0
-        ? "<b>This week</b>"
-        : diffWeeks > 0
-        ? `-${diffWeeks}w`
-        : `+${Math.abs(diffWeeks)}w`;
-
-    // If this label exists in the venue's weeks, update it
-    if (venues[venueId].weeks[label]) {
-      venues[venueId].weeks[label].count++;
-      venues[venueId].weeks[label].gigNames.push(gig.name);
-      venues[venueId].weeks[label].gigs.push(gig); // store the gig object
-    }
-  });
-
-  // Create table structure
-  const table = document.createElement("table");
-
-  // Add table header
-  const headerRow = document.createElement("tr");
-  const venueHeader = document.createElement("th");
-  venueHeader.textContent = "Venue";
-  venueHeader.classList.add("venue-column");
-  venueHeader.style.width = `${maxVenueNameLength * 7 + 20}px`;
-  headerRow.appendChild(venueHeader);
-
-  weeks.forEach((week) => {
-    const weekHeader = document.createElement("th");
-    weekHeader.innerHTML = week;
-    headerRow.appendChild(weekHeader);
-  });
-
-  const thead = document.createElement("thead");
-  thead.appendChild(headerRow);
-  table.appendChild(thead);
-
-  // Add table rows for each venue
-  const tbody = document.createElement("tbody");
-
-  Object.values(venues).forEach((venue) => {
-    const row = document.createElement("tr");
-    const venueCell = document.createElement("td");
-    venueCell.textContent = venue.name;
-    venueCell.classList.add("venue-column");
-    venueCell.style.whiteSpace = "nowrap";
-    row.appendChild(venueCell);
-
-    // Build cells for each week
-    weeks.forEach((week) => {
-      const weekCell = document.createElement("td");
-      const weekData = venue.weeks[week];
-
-      weekCell.textContent = weekData.count > 0 ? weekData.count : "";
-      weekCell.style.backgroundColor =
-        weekData.count > 0 ? "#c8faed" : "white";
-
-      // Highlight the current week
-      if (week === "<b>This week</b>") {
-        weekCell.classList.add("current-week");
-
-        // If any gig in the current week has missing genres, make the cell text red
-        const hasMissingGenres = weekData.gigs.some(
-          (g) => !g.genre_tags || g.genre_tags.length === 0
-        );
-        if (hasMissingGenres) {
-          weekCell.style.color = "red";
+        // Initialize the venue if it doesn't exist
+        if (!venues[venueId]) {
+            venues[venueId] = { name: venueName, weeks: {} };
+            weeks.forEach((week) => {
+                venues[venueId].weeks[week] = { count: 0, gigNames: [], gigs: [] };
+            });
         }
-      }
 
-      // Add tooltip with gig names (using custom tooltip)
-      if (weekData.gigs.length > 0) {
-        const tooltipContent = weekData.gigs
-          .map(
-            (gig) =>
-              `<span style="color: ${
-                gig.genre_tags && gig.genre_tags.length > 0 ? "black" : "red"
-              }">${gig.name}</span>`
-          )
-          .join("<br>");
-        weekCell.setAttribute("data-tooltip", tooltipContent);
-      }
+        // Determine the label based on the difference from current week
+        const currentWeekStart = getWeekStart(currentDate);
+        const diffWeeks = Math.round(
+            (weekStart - currentWeekStart) / (7 * 24 * 60 * 60 * 1000)
+        );
+        const label =
+            diffWeeks === 0
+                ? "<b>This week</b>"
+                : diffWeeks < 0
+                    ? `${diffWeeks}w`
+                    : `+${diffWeeks}w`;
 
-      row.appendChild(weekCell);
+        // If this label exists in the venue's weeks, update it
+        if (venues[venueId].weeks[label]) {
+            venues[venueId].weeks[label].count++;
+            venues[venueId].weeks[label].gigNames.push(gig.name);
+            venues[venueId].weeks[label].gigs.push(gig);
+        }
     });
 
-    tbody.appendChild(row);
-  });
+    // Rest of the rendering code remains the same...
+    const table = document.createElement("table");
+    
+    // Add table header
+    const headerRow = document.createElement("tr");
+    const venueHeader = document.createElement("th");
+    venueHeader.textContent = "Venue";
+    venueHeader.classList.add("venue-column");
+    venueHeader.style.width = `${maxVenueNameLength * 7 + 20}px`;
+    headerRow.appendChild(venueHeader);
 
-  table.appendChild(tbody);
+    weeks.forEach((week) => {
+        const weekHeader = document.createElement("th");
+        weekHeader.innerHTML = week;
+        headerRow.appendChild(weekHeader);
+    });
 
-  // Update DOM
-  const gigTableContainer = document.getElementById("gig-table");
-  gigTableContainer.innerHTML = "";
-  gigTableContainer.appendChild(table);
+    const thead = document.createElement("thead");
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
 
-  // Initialize custom tooltips
-  initializeTooltips();
+    // Add table rows for each venue
+    const tbody = document.createElement("tbody");
+
+    Object.values(venues).forEach((venue) => {
+        const row = document.createElement("tr");
+        const venueCell = document.createElement("td");
+        venueCell.textContent = venue.name;
+        venueCell.classList.add("venue-column");
+        venueCell.style.whiteSpace = "nowrap";
+        row.appendChild(venueCell);
+
+        weeks.forEach((week) => {
+            const weekCell = document.createElement("td");
+            const weekData = venue.weeks[week];
+
+            weekCell.textContent = weekData.count > 0 ? weekData.count : "";
+            weekCell.style.backgroundColor =
+                weekData.count > 0 ? "#c8faed" : "white";
+
+            if (week === "<b>This week</b>") {
+                weekCell.classList.add("current-week");
+                const hasMissingGenres = weekData.gigs.some(
+                    (g) => !g.genre_tags || g.genre_tags.length === 0
+                );
+                if (hasMissingGenres) {
+                    weekCell.style.color = "red";
+                }
+            }
+
+            if (weekData.gigs.length > 0) {
+                const tooltipContent = weekData.gigs
+                    .map(
+                        (gig) =>
+                            `<span style="color: ${
+                                gig.genre_tags && gig.genre_tags.length > 0 ? "black" : "red"
+                            }">${gig.name}</span>`
+                    )
+                    .join("<br>");
+                weekCell.setAttribute("data-tooltip", tooltipContent);
+            }
+
+            row.appendChild(weekCell);
+        });
+
+        tbody.appendChild(row);
+    });
+
+    table.appendChild(tbody);
+
+    // Update DOM
+    const gigTableContainer = document.getElementById("gig-table");
+    gigTableContainer.innerHTML = "";
+    gigTableContainer.appendChild(table);
+
+    // Initialize custom tooltips
+    initializeTooltips();
 }
 
+// The rest of the code (initializeTooltips, event listeners, etc.) remains the same
 /**
  * Initialize custom tooltips using CSS.
  */
