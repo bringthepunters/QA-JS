@@ -360,8 +360,8 @@ function renderTable(gigs, venueOwnersMap) {
                 weekCell.textContent = weekData.count > 0 ? weekData.count : "";
             }
 
-            // Tooltip logic remains the same for all cells with gigs
-            if (weekData.gigs.length > 0) {
+            // Add gig list tooltip only if it's NOT the "This week" cell
+            if (weekData.gigs.length > 0 && week !== "<b>This week</b>") {
                 const tooltipContent = weekData.gigs
                     .map(
                         (gig) =>
