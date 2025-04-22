@@ -5,15 +5,53 @@
 async function fetchVenueOwners() {
     const res = await fetch(getVenueCsvUrl());
     const csv = await res.text();
-    const lines = csv.split('\n').filter(line => line.trim().length > 0);
-    // Find header row and column indices
-    const headers = lines[0].split(',');
-    const idIdx = headers.findIndex(h => h.trim().toLowerCase() === "lml id");
-    const ownerIdx = headers.findIndex(h => h.trim().toLowerCase() === "owner");
+
+    // Robust CSV parser for quoted fields
+    function parseCSV(text) {
+        const rows = [];
+        let row = [];
+        let cell = '';
+        let inQuotes = false;
+        for (let i = 0; i < text.length; i++) {
+            const char = text[i];
+            if (char === '"') {
+                if (inQuotes && text[i + 1] === '"') {
+                    cell += '"';
+                    i++;
+                } else {
+                    inQuotes = !inQuotes;
+                }
+            } else if (char === ',' && !inQuotes) {
+                row.push(cell);
+                cell = '';
+            } else if ((char === '\n' || char === '\r') && !inQuotes) {
+                if (cell !== '' || row.length > 0) {
+                    row.push(cell);
+                    rows.push(row);
+                    row = [];
+                    cell = '';
+                }
+                // Handle \r\n
+                if (char === '\r' && text[i + 1] === '\n') i++;
+            } else {
+                cell += char;
+            }
+        }
+        if (cell !== '' || row.length > 0) {
+            row.push(cell);
+            rows.push(row);
+        }
+        return rows;
+    }
+
+    const lines = parseCSV(csv).filter(row => row.length > 1);
+    const headers = lines[0].map(h => h.trim().toLowerCase());
+    const idIdx = headers.findIndex(h => h === "lml id");
+    const ownerIdx = headers.findIndex(h => h === "owner");
     if (idIdx === -1 || ownerIdx === -1) return {};
     const map = {};
     for (let i = 1; i < lines.length; i++) {
-        const cols = lines[i].split(',');
+        const cols = lines[i];
         const id = cols[idIdx]?.trim();
         const owner = cols[ownerIdx]?.trim();
         if (id) map[id] = owner || "-";
@@ -180,10 +218,12 @@ function renderTable(gigs, venueOwnersMap) {
     
     // Add table header
     const headerRow = document.createElement("tr");
+    // Owner column header (centered)
     const ownerHeader = document.createElement("th");
     ownerHeader.textContent = "Owner";
     headerRow.appendChild(ownerHeader);
 
+    // Venue column header (left-aligned)
     const venueHeader = document.createElement("th");
     venueHeader.textContent = "Venue";
     venueHeader.classList.add("venue-column");
@@ -205,11 +245,11 @@ function renderTable(gigs, venueOwnersMap) {
 
     Object.values(venues).forEach((venue) => {
         const row = document.createElement("tr");
-        // Owner cell
+        // Owner cell (centered)
         const ownerCell = document.createElement("td");
         ownerCell.textContent = (venueOwnersMap && venueOwnersMap[venue.id]) ? venueOwnersMap[venue.id] : "-";
         row.appendChild(ownerCell);
-        // Venue cell
+        // Venue cell (left-aligned)
         const venueCell = document.createElement("td");
         venueCell.textContent = venue.name;
         venueCell.classList.add("venue-column");
