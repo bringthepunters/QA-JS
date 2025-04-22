@@ -52,7 +52,7 @@ async function fetchVenueOwners() {
     const map = {};
     for (let i = 1; i < lines.length; i++) {
         const cols = lines[i];
-        const id = cols[idIdx]?.trim();
+        const id = cols[idIdx]?.trim().toLowerCase();
         const owner = cols[ownerIdx]?.trim();
         if (id) map[id] = owner || "-";
     }
@@ -247,7 +247,13 @@ function renderTable(gigs, venueOwnersMap) {
         const row = document.createElement("tr");
         // Owner cell (centered)
         const ownerCell = document.createElement("td");
-        ownerCell.textContent = (venueOwnersMap && venueOwnersMap[venue.id]) ? venueOwnersMap[venue.id] : "-";
+        // Normalize ID for lookup
+        const normId = venue.id ? venue.id.trim().toLowerCase() : "";
+        ownerCell.textContent = (venueOwnersMap && venueOwnersMap[normId]) ? venueOwnersMap[normId] : "-";
+        // Debug: log mapping for a sample ID
+        if (normId === "a7535cc9-de04-4846-99e9-61cd1b02d1b2") {
+            console.log("Owner for a7535cc9-de04-4846-99e9-61cd1b02d1b2:", venueOwnersMap[normId]);
+        }
         row.appendChild(ownerCell);
         // Venue cell (left-aligned)
         const venueCell = document.createElement("td");
