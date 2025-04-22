@@ -338,6 +338,7 @@ function renderTable(gigs, venueOwnersMap) {
                     link.href = adminUrl;
                     link.textContent = weekData.count;
                     link.target = "_blank"; // Open in new tab
+                    link.title = "open gigs in admin"; // Add tooltip text
                     link.style.textDecoration = "underline"; // Optional: make it look like a link
                     link.style.color = "inherit"; // Inherit color (e.g., red if missing genres)
                     weekCell.appendChild(link);
