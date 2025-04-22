@@ -1,79 +1,71 @@
 /***** JavaScript *****/
 
 // Google Sheet CSV URL for "LML Venues" tab
-// Google Sheet CSV URL for "LML Venues" tab (more reliable export format)
-const _v = [
-  "https://docs.google.com/",
-  "spreadsheets/d/",
-  "16-UoFq94SPa-EV7ECb1yyaOrkEjQXpzw2-5bHfwahdo",
-  "/export?format=csv&sheet=LML%20Venues"
-];
-function getVenueCsvUrl() {
-  return _v[0] + _v[1] + _v[2] + _v[3];
-}
-
 /* Fetch and parse the venue owners CSV, returns a mapping { LML ID: Owner } */
 async function fetchVenueOwners() {
-    const url = getVenueCsvUrl();
-    console.log("Fetching owners from URL:", url);
+    const url = './LML Admin Central - LML Venues.csv';
+    console.log("Fetching owners from local CSV file:", url);
     try {
         const res = await fetch(url);
-        const raw = await res.text();
-        console.log("Raw fetch response from Google Sheet:", raw.slice(0, 1000)); // Print first 1000 chars
-        // Robust CSV parser for quoted fields
-        function parseCSV(text) {
-            const rows = [];
-            let row = [];
-            let cell = '';
-            let inQuotes = false;
-            for (let i = 0; i < text.length; i++) {
-                const char = text[i];
-                if (char === '"') {
-                    if (inQuotes && text[i + 1] === '"') {
-                        cell += '"';
-                        i++;
-                    } else {
-                        inQuotes = !inQuotes;
-                    }
-                } else if (char === ',' && !inQuotes) {
-                    row.push(cell);
-                    cell = '';
-                } else if ((char === '\n' || char === '\r') && !inQuotes) {
-                    if (cell !== '' || row.length > 0) {
-                        row.push(cell);
-                        rows.push(row);
-                        row = [];
-                        cell = '';
-                    }
-                    // Handle \r\n
-                    if (char === '\r' && text[i + 1] === '\n') i++;
-                } else {
-                    cell += char;
-                }
-            }
-            if (cell !== '' || row.length > 0) {
-                row.push(cell);
-                rows.push(row);
-            }
-            return rows;
-        }
-        const lines = parseCSV(raw).filter(row => row.length > 1);
-        const headers = lines[0].map(h => h.trim().toLowerCase());
-        const idIdx = headers.findIndex(h => h === "lml id");
-        const ownerIdx = headers.findIndex(h => h === "owner");
-        if (idIdx === -1 || ownerIdx === -1) return {};
-        const map = {};
-        for (let i = 1; i < lines.length; i++) {
-            const cols = lines[i];
-            const id = cols[idIdx]?.trim().toLowerCase();
-            const owner = cols[ownerIdx]?.trim();
-            if (id) map[id] = owner || "-";
-        }
-        return map;
+        const csv = await res.text();
+        console.log("Raw fetch response from local CSV:", csv.slice(0, 1000)); // Print first 1000 chars
     } catch (e) {
         console.error("Error fetching or parsing venue owners CSV:", e);
         return {};
     }
+
+    // Robust CSV parser for quoted fields
+    function parseCSV(text) {
+        const rows = [];
+        let row = [];
+        let cell = '';
+        let inQuotes = false;
+        for (let i = 0; i < text.length; i++) {
+            const char = text[i];
+            if (char === '"') {
+                if (inQuotes && text[i + 1] === '"') {
+                    cell += '"';
+                    i++;
+                } else {
+                    inQuotes = !inQuotes;
+                }
+            } else if (char === ',' && !inQuotes) {
+                row.push(cell);
+                cell = '';
+            } else if ((char === '\n' || char === '\r') && !inQuotes) {
+                if (cell !== '' || row.length > 0) {
+                    row.push(cell);
+                    rows.push(row);
+                    row = [];
+                    cell = '';
+                }
+                // Handle \r\n
+                if (char === '\r' && text[i + 1] === '\n') i++;
+            } else {
+                cell += char;
+            }
+        }
+        if (cell !== '' || row.length > 0) {
+            row.push(cell);
+            rows.push(row);
+        }
+        return rows;
+    }
+
+    // Parse and map after fetch
+    const lines = parseCSV(csv).filter(row => row.length > 1);
+    const headers = lines[0].map(h => h.trim().toLowerCase());
+    const idIdx = headers.findIndex(h => h === "lml id");
+    const ownerIdx = headers.findIndex(h => h === "owner");
+    if (idIdx === -1 || ownerIdx === -1) return {};
+    const map = {};
+    for (let i = 1; i < lines.length; i++) {
+        const cols = lines[i];
+        const id = cols[idIdx]?.trim().toLowerCase();
+        const owner = cols[ownerIdx]?.trim();
+        if (id) map[id] = owner || "-";
+    }
+    return map;
 }
 
     // Robust CSV parser for quoted fields
