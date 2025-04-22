@@ -240,7 +240,7 @@ function renderTable(gigs, venueOwnersMap) {
 
     // Venue column header (left-aligned)
     const venueHeader = document.createElement("th");
-    venueHeader.textContent = "Venue";
+    venueHeader.textContent = "Venue"; // Restore the header text
     venueHeader.classList.add("venue-column");
     venueHeader.style.width = `${maxVenueNameLength * 7 + 20}px`;
     // Make sure venue header is visually distinct like other headers
@@ -380,25 +380,52 @@ async function initializeApp() {
 }
 
 /**
- * Filter functionality
+ * Combined filter functionality (Venue and Owner)
  */
-document.getElementById("filter-input").addEventListener("input", (event) => {
-  const filterText = event.target.value.toLowerCase();
+function applyFilters() {
+  const venueFilterText = document.getElementById("filter-input").value.toLowerCase();
+  const ownerFilterText = document.getElementById("owner-filter-input").value.toLowerCase();
   const rows = document.querySelectorAll("tbody tr");
+
   rows.forEach((row) => {
-    const venueName = row.querySelector(".venue-column").textContent.toLowerCase();
-    row.style.display = venueName.includes(filterText) ? "" : "none";
+    // Get venue name (second td) and owner (first td)
+    const cells = row.querySelectorAll("td");
+    if (cells.length < 2) return; // Skip if row doesn't have enough cells
+
+    const ownerName = cells[0].textContent.toLowerCase();
+    const venueName = cells[1].textContent.toLowerCase(); // Venue name is in the second column
+
+    const venueMatch = venueName.includes(venueFilterText);
+    const ownerMatch = ownerName.includes(ownerFilterText);
+
+    // Show row only if it matches both active filters
+    row.style.display = venueMatch && ownerMatch ? "" : "none";
   });
-});
+}
+
+// Event listener for venue filter input
+document.getElementById("filter-input").addEventListener("input", applyFilters);
+
+// Event listener for owner filter input
+document.getElementById("owner-filter-input").addEventListener("input", applyFilters);
+
 
 /**
- * Clear filter button functionality
+ * Clear Venue filter button functionality
  */
 document.getElementById("clear-filter-button").addEventListener("click", () => {
   document.getElementById("filter-input").value = "";
-  const rows = document.querySelectorAll("tbody tr");
-  rows.forEach((row) => (row.style.display = ""));
+  applyFilters(); // Re-apply filters after clearing
 });
+
+/**
+ * Clear Owner filter button functionality
+ */
+document.getElementById("clear-owner-filter-button").addEventListener("click", () => {
+  document.getElementById("owner-filter-input").value = "";
+  applyFilters(); // Re-apply filters after clearing
+});
+
 
 /**
  * Refresh button functionality
