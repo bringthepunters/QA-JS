@@ -1,9 +1,41 @@
 /***** JavaScript *****/
 
+// Google Sheet CSV URL for "LML Venues" tab
+/* Fetch and parse the venue owners CSV, returns a mapping { LML ID: Owner } */
+async function fetchVenueOwners() {
+    const res = await fetch(getVenueCsvUrl());
+    const csv = await res.text();
+    const lines = csv.split('\n').filter(line => line.trim().length > 0);
+    // Find header row and column indices
+    const headers = lines[0].split(',');
+    const idIdx = headers.findIndex(h => h.trim().toLowerCase() === "lml id");
+    const ownerIdx = headers.findIndex(h => h.trim().toLowerCase() === "owner");
+    if (idIdx === -1 || ownerIdx === -1) return {};
+    const map = {};
+    for (let i = 1; i < lines.length; i++) {
+        const cols = lines[i].split(',');
+        const id = cols[idIdx]?.trim();
+        const owner = cols[ownerIdx]?.trim();
+        if (id) map[id] = owner || "-";
+    }
+    return map;
+}
+
 /** API Settings **/
 const API_BASE_URL = "https://api.lml.live/gigs/query";
 const WEEKS_PAST = 10;
 const WEEKS_FUTURE = 6;
+
+// Subtly obscured Google Sheet CSV URL for "LML Venues" tab
+const _v = [
+  "https://docs.google.com/",
+  "spreadsheets/d/",
+  "16-UoFq94SPa-EV7ECb1yyaOrkEjQXpzw2-5bHfwahdo",
+  "/gviz/tq?tqx=out:csv&sheet=LML%20Venues"
+];
+function getVenueCsvUrl() {
+  return _v[0] + _v[1] + _v[2] + _v[3];
+}
 
 // Helper function to get the start of the week (Monday 4am)
 function getWeekStart(date) {
@@ -100,7 +132,7 @@ function generateWeekLabels() {
  * Render the gig data in a table format.
  * Each row corresponds to a venue, and columns correspond to each week.
  */
-function renderTable(gigs) {
+function renderTable(gigs, venueOwnersMap) {
     const venues = {};
     const weeks = generateWeekLabels();
     let maxVenueNameLength = 0;
@@ -118,7 +150,7 @@ function renderTable(gigs) {
 
         // Initialize the venue if it doesn't exist
         if (!venues[venueId]) {
-            venues[venueId] = { name: venueName, weeks: {} };
+            venues[venueId] = { id: venueId, name: venueName, weeks: {} };
             weeks.forEach((week) => {
                 venues[venueId].weeks[week] = { count: 0, gigNames: [], gigs: [] };
             });
@@ -144,11 +176,14 @@ function renderTable(gigs) {
         }
     });
 
-    // Rest of the rendering code remains the same...
     const table = document.createElement("table");
     
     // Add table header
     const headerRow = document.createElement("tr");
+    const ownerHeader = document.createElement("th");
+    ownerHeader.textContent = "Owner";
+    headerRow.appendChild(ownerHeader);
+
     const venueHeader = document.createElement("th");
     venueHeader.textContent = "Venue";
     venueHeader.classList.add("venue-column");
@@ -170,6 +205,11 @@ function renderTable(gigs) {
 
     Object.values(venues).forEach((venue) => {
         const row = document.createElement("tr");
+        // Owner cell
+        const ownerCell = document.createElement("td");
+        ownerCell.textContent = (venueOwnersMap && venueOwnersMap[venue.id]) ? venueOwnersMap[venue.id] : "-";
+        row.appendChild(ownerCell);
+        // Venue cell
         const venueCell = document.createElement("td");
         venueCell.textContent = venue.name;
         venueCell.classList.add("venue-column");
@@ -251,8 +291,15 @@ function initializeTooltips() {
  */
 async function initializeApp() {
   const location = document.getElementById("location-select").value;
+  // Fetch owners first
+  let venueOwnersMap = {};
+  try {
+    venueOwnersMap = await fetchVenueOwners();
+  } catch (e) {
+    console.warn("Could not fetch venue owners:", e);
+  }
   const gigs = await fetchGigs(location);
-  renderTable(gigs);
+  renderTable(gigs, venueOwnersMap);
 }
 
 /**
