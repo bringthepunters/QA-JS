@@ -50,16 +50,31 @@ async function fetchVenueOwners() {
 
         // Parse and map after fetch
         const lines = parseCSV(csv).filter(row => row.length > 1);
-        const headers = lines[0].map(h => h.trim().toLowerCase());
+        // Headers are on the second line (index 1) in this specific CSV
+        if (lines.length < 2) {
+            console.error("CSV has less than 2 lines, cannot find headers.");
+            return {};
+        }
+        const headers = lines[1].map(h => h.trim().toLowerCase());
         const idIdx = headers.findIndex(h => h === "lml id");
         const ownerIdx = headers.findIndex(h => h === "owner");
-        if (idIdx === -1 || ownerIdx === -1) return {};
+
+        if (idIdx === -1 || ownerIdx === -1) {
+             console.error("Could not find 'lml id' or 'owner' header in the second row. Found headers:", headers);
+             return {};
+        }
         const map = {};
-        for (let i = 1; i < lines.length; i++) {
+        // Data starts from the third line (index 2)
+        for (let i = 2; i < lines.length; i++) {
             const cols = lines[i];
-            const id = cols[idIdx]?.trim().toLowerCase();
-            const owner = cols[ownerIdx]?.trim();
-            if (id) map[id] = owner || "-";
+            // Ensure the row has enough columns before accessing indices
+            if (cols.length > Math.max(idIdx, ownerIdx)) {
+                const id = cols[idIdx]?.trim().toLowerCase();
+                const owner = cols[ownerIdx]?.trim();
+                if (id) map[id] = owner || "-";
+            } else {
+                 console.warn(`Skipping row ${i+1} due to insufficient columns:`, cols);
+            }
         }
         return map;
     } catch (e) {
