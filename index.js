@@ -245,6 +245,7 @@ function renderTable(gigs, venueOwnersMap) {
     venueHeader.style.width = `${maxVenueNameLength * 7 + 20}px`;
     // Make sure venue header is visually distinct like other headers
     venueHeader.style.textAlign = "left";
+    venueHeader.style.color = "black"; // Explicitly set text color to black
     headerRow.appendChild(venueHeader);
 
     weeks.forEach((week) => {
@@ -260,7 +261,26 @@ function renderTable(gigs, venueOwnersMap) {
     // Add table rows for each venue
     const tbody = document.createElement("tbody");
 
-    Object.values(venues).forEach((venue) => {
+    // Convert venues object to an array and sort alphabetically by owner name (case-insensitive)
+    const sortedVenues = Object.values(venues).sort((a, b) => {
+        // Get owner names, defaulting to '-' if not found or ID is missing
+        const ownerA = (venueOwnersMap && a.id && venueOwnersMap[a.id.trim().toLowerCase()]) || '-';
+        const ownerB = (venueOwnersMap && b.id && venueOwnersMap[b.id.trim().toLowerCase()]) || '-';
+        const nameA = ownerA.toLowerCase();
+        const nameB = ownerB.toLowerCase();
+
+        if (nameA < nameB) return -1;
+        if (nameA > nameB) return 1;
+        // If owners are the same, sort by venue name as a secondary criterion
+        const venueNameA = a.name.toLowerCase();
+        const venueNameB = b.name.toLowerCase();
+        if (venueNameA < venueNameB) return -1;
+        if (venueNameA > venueNameB) return 1;
+        return 0;
+    });
+
+    // Iterate over the sorted array to create rows
+    sortedVenues.forEach((venue) => {
         const row = document.createElement("tr");
         // Owner cell (centered)
         const ownerCell = document.createElement("td");
