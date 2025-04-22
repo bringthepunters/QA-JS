@@ -241,11 +241,11 @@ function renderTable(gigs, venueOwnersMap) {
     // Venue column header (left-aligned)
     const venueHeader = document.createElement("th");
     venueHeader.textContent = "Venue"; // Restore the header text
-    venueHeader.classList.add("venue-column");
+    // venueHeader.classList.add("venue-column"); // Remove class from TH
     venueHeader.style.width = `${maxVenueNameLength * 7 + 20}px`;
     // Make sure venue header is visually distinct like other headers
     venueHeader.style.textAlign = "left";
-    venueHeader.style.color = "black"; // Explicitly set text color to black
+    // venueHeader.style.color = "black"; // Remove inline style
     headerRow.appendChild(venueHeader);
 
     weeks.forEach((week) => {
@@ -269,9 +269,16 @@ function renderTable(gigs, venueOwnersMap) {
         const nameA = ownerA.toLowerCase();
         const nameB = ownerB.toLowerCase();
 
+        // Prioritize non-hyphen owners: If A is '-' and B is not, B comes first.
+        if (ownerA === '-' && ownerB !== '-') return 1;
+        // If B is '-' and A is not, A comes first.
+        if (ownerA !== '-' && ownerB === '-') return -1;
+
+        // If both are '-' or both are not '-', sort alphabetically by owner
         if (nameA < nameB) return -1;
         if (nameA > nameB) return 1;
-        // If owners are the same, sort by venue name as a secondary criterion
+
+        // If owners are the same (or both '-'), sort by venue name as a secondary criterion
         const venueNameA = a.name.toLowerCase();
         const venueNameB = b.name.toLowerCase();
         if (venueNameA < venueNameB) return -1;

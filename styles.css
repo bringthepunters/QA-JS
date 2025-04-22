@@ -131,13 +131,13 @@ body {
   .current-week {
     border-left: 2px solid #444;
     border-right: 2px solid #444;
-  }
-  
-  /* Fixed Column */
-  .venue-column {
-    position: sticky;
-    left: 0;
-    background-color: white;
+}
+
+/* Fixed Column - Apply only to data cells (td) */
+td.venue-column {
+  position: sticky;
+  left: 0;
+  background-color: white; /* Keep background white for data cells */
     z-index: 2;
   }
   
@@ -174,4 +174,3 @@ body {
     z-index: 1000;
     max-width: 300px;
   }
-  
