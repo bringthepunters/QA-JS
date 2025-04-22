@@ -1,8 +1,20 @@
 /***** JavaScript *****/
 
 // Google Sheet CSV URL for "LML Venues" tab
+// Google Sheet CSV URL for "LML Venues" tab (more reliable export format)
+const _v = [
+  "https://docs.google.com/",
+  "spreadsheets/d/",
+  "16-UoFq94SPa-EV7ECb1yyaOrkEjQXpzw2-5bHfwahdo",
+  "/export?format=csv&sheet=LML%20Venues"
+];
+function getVenueCsvUrl() {
+  return _v[0] + _v[1] + _v[2] + _v[3];
+}
+
 /* Fetch and parse the venue owners CSV, returns a mapping { LML ID: Owner } */
 async function fetchVenueOwners() {
+    console.log("Fetching owners from URL:", getVenueCsvUrl());
     const res = await fetch(getVenueCsvUrl());
     const csv = await res.text();
 
@@ -64,16 +76,7 @@ const API_BASE_URL = "https://api.lml.live/gigs/query";
 const WEEKS_PAST = 10;
 const WEEKS_FUTURE = 6;
 
-// Subtly obscured Google Sheet CSV URL for "LML Venues" tab
-const _v = [
-  "https://docs.google.com/",
-  "spreadsheets/d/",
-  "16-UoFq94SPa-EV7ECb1yyaOrkEjQXpzw2-5bHfwahdo",
-  "/gviz/tq?tqx=out:csv&sheet=LML%20Venues"
-];
-function getVenueCsvUrl() {
-  return _v[0] + _v[1] + _v[2] + _v[3];
-}
+// API Settings section continues below
 
 // Helper function to get the start of the week (Monday 4am)
 function getWeekStart(date) {
@@ -220,7 +223,7 @@ function renderTable(gigs, venueOwnersMap) {
     const headerRow = document.createElement("tr");
     // Owner column header (centered)
     const ownerHeader = document.createElement("th");
-    ownerHeader.textContent = "Owner";
+    ownerHeader.textContent = ""; // Removed "Owner" as requested
     headerRow.appendChild(ownerHeader);
 
     // Venue column header (left-aligned)
@@ -228,6 +231,8 @@ function renderTable(gigs, venueOwnersMap) {
     venueHeader.textContent = "Venue";
     venueHeader.classList.add("venue-column");
     venueHeader.style.width = `${maxVenueNameLength * 7 + 20}px`;
+    // Make sure venue header is visually distinct like other headers
+    venueHeader.style.textAlign = "left";
     headerRow.appendChild(venueHeader);
 
     weeks.forEach((week) => {
