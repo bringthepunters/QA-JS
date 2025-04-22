@@ -249,10 +249,24 @@ function renderTable(gigs, venueOwnersMap) {
         const ownerCell = document.createElement("td");
         // Normalize ID for lookup
         const normId = venue.id ? venue.id.trim().toLowerCase() : "";
-        ownerCell.textContent = (venueOwnersMap && venueOwnersMap[normId]) ? venueOwnersMap[normId] : "-";
-        // Debug: log mapping for a sample ID
-        if (normId === "a7535cc9-de04-4846-99e9-61cd1b02d1b2") {
-            console.log("Owner for a7535cc9-de04-4846-99e9-61cd1b02d1b2:", venueOwnersMap[normId]);
+        let ownerValue = "-";
+        if (venueOwnersMap && venueOwnersMap[normId]) {
+            ownerValue = venueOwnersMap[normId];
+        }
+        ownerCell.textContent = ownerValue;
+
+        // Debug: log mapping for a sample ID and similar keys
+        const sampleId = "a7535cc9-de04-4846-99e9-61cd1b02d1b2";
+        if (normId === sampleId) {
+            console.log("Owner for", sampleId, ":", venueOwnersMap[normId]);
+            // Find all mapping keys that contain the sample substring
+            const similarKeys = Object.keys(venueOwnersMap).filter(k => k.includes("a7535cc9"));
+            console.log("Mapping keys containing 'a7535cc9':", similarKeys);
+            // Log lengths and char codes for comparison
+            similarKeys.forEach(k => {
+                console.log("Key:", k, "Length:", k.length, "Char codes:", Array.from(k).map(c => c.charCodeAt(0)));
+            });
+            console.log("SampleId Length:", sampleId.length, "Char codes:", Array.from(sampleId).map(c => c.charCodeAt(0)));
         }
         row.appendChild(ownerCell);
         // Venue cell (left-aligned)
