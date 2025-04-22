@@ -324,20 +324,42 @@ function renderTable(gigs, venueOwnersMap) {
             const weekCell = document.createElement("td");
             const weekData = venue.weeks[week];
 
-            weekCell.textContent = weekData.count > 0 ? weekData.count : "";
-            weekCell.style.backgroundColor =
-                weekData.count > 0 ? "#c8faed" : "white";
+            // Default: Set background color
+            weekCell.style.backgroundColor = weekData.count > 0 ? "#c8faed" : "white";
 
+            // Special handling for "This week" column
             if (week === "<b>This week</b>") {
                 weekCell.classList.add("current-week");
-                const hasMissingGenres = weekData.gigs.some(
-                    (g) => !g.genre_tags || g.genre_tags.length === 0
-                );
-                if (hasMissingGenres) {
-                    weekCell.style.color = "red";
+
+                if (weekData.count > 0) {
+                    // Create hyperlink for the count
+                    const link = document.createElement("a");
+                    const adminUrl = `https://api.lml.live/admin/gigs?order=source_desc&q%5Bvenue_id_eq%5D=${venue.id}`;
+                    link.href = adminUrl;
+                    link.textContent = weekData.count;
+                    link.target = "_blank"; // Open in new tab
+                    link.style.textDecoration = "underline"; // Optional: make it look like a link
+                    link.style.color = "inherit"; // Inherit color (e.g., red if missing genres)
+                    weekCell.appendChild(link);
+
+                    // Check for missing genres and set color (applies to link via inheritance)
+                    const hasMissingGenres = weekData.gigs.some(
+                        (g) => !g.genre_tags || g.genre_tags.length === 0
+                    );
+                    if (hasMissingGenres) {
+                        weekCell.style.color = "red";
+                    }
+                } else {
+                    // If count is 0, just leave the cell empty
+                    weekCell.textContent = "";
                 }
+
+            } else {
+                // For other weeks, just display the count
+                weekCell.textContent = weekData.count > 0 ? weekData.count : "";
             }
 
+            // Tooltip logic remains the same for all cells with gigs
             if (weekData.gigs.length > 0) {
                 const tooltipContent = weekData.gigs
                     .map(
