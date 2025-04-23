@@ -338,7 +338,7 @@ function renderTable(gigs, venueOwnersMap) {
                     link.href = adminUrl;
                     link.textContent = weekData.count;
                     link.target = "_blank"; // Open in new tab
-                    link.title = "open gigs in admin"; // Add tooltip text
+                    // link.title = "open gigs in admin"; // REVERTED: Remove tooltip text
                     link.style.textDecoration = "underline"; // Optional: make it look like a link
                     link.style.color = "inherit"; // Inherit color (e.g., red if missing genres)
                     weekCell.appendChild(link);
@@ -360,8 +360,8 @@ function renderTable(gigs, venueOwnersMap) {
                 weekCell.textContent = weekData.count > 0 ? weekData.count : "";
             }
 
-            // Add gig list tooltip only if it's NOT the "This week" cell
-            if (weekData.gigs.length > 0 && week !== "<b>This week</b>") {
+            // REVERTED: Tooltip logic applies to all cells with gigs
+            if (weekData.gigs.length > 0) {
                 const tooltipContent = weekData.gigs
                     .map(
                         (gig) =>
