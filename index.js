@@ -360,17 +360,89 @@ function renderTable(gigs, venueOwnersMap) {
                 weekCell.textContent = weekData.count > 0 ? weekData.count : "";
             }
 
-            // REVERTED: Tooltip logic applies to all cells with gigs
+            // Tooltip logic applies to all cells with gigs
             if (weekData.gigs.length > 0) {
-                const tooltipContent = weekData.gigs
-                    .map(
-                        (gig) =>
-                            `<span style="color: ${
-                                gig.genre_tags && gig.genre_tags.length > 0 ? "black" : "red"
-                            }">${gig.name}</span>`
-                    )
-                    .join("<br>");
+                // Find potential duplicates (same venue, similar name, within 30 minutes)
+                const gigGroups = [];
+                const processed = new Set();
+                
+                // Helper function for fuzzy string matching (simplified)
+                function stringSimilarity(a, b) {
+                    a = a.toLowerCase();
+                    b = b.toLowerCase();
+                    
+                    // Exact match
+                    if (a === b) return 1.0;
+                    
+                    // One is substring of the other
+                    if (a.includes(b) || b.includes(a)) return 0.8;
+                    
+                    // Check for common words
+                    const wordsA = a.split(/\s+/);
+                    const wordsB = b.split(/\s+/);
+                    let commonWords = 0;
+                    
+                    for (const wordA of wordsA) {
+                        if (wordA.length < 3) continue; // Skip short words
+                        if (wordsB.some(wordB => wordB.includes(wordA) || wordA.includes(wordB)))
+                            commonWords++;
+                    }
+                    
+                    if (commonWords > 0) {
+                        return commonWords / Math.max(wordsA.length, wordsB.length);
+                    }
+                    
+                    return 0;
+                }
+                
+                // Group similar gigs
+                for (let i = 0; i < weekData.gigs.length; i++) {
+                    if (processed.has(i)) continue;
+                    
+                    const gig = weekData.gigs[i];
+                    const group = [gig];
+                    processed.add(i);
+                    
+                    for (let j = 0; j < weekData.gigs.length; j++) {
+                        if (i === j || processed.has(j)) continue;
+                        
+                        const otherGig = weekData.gigs[j];
+                        const timeA = new Date(gig.date).getTime();
+                        const timeB = new Date(otherGig.date).getTime();
+                        const timeDiffMinutes = Math.abs(timeA - timeB) / (1000 * 60);
+                        
+                        // Check if gigs are within 30 minutes and have similar names
+                        if (timeDiffMinutes <= 30 && stringSimilarity(gig.name, otherGig.name) >= 0.7) {
+                            group.push(otherGig);
+                            processed.add(j);
+                        }
+                    }
+                    
+                    gigGroups.push(group);
+                }
+                
+                // Generate tooltip content with potential duplicates highlighted and grouped
+                const tooltipContent = gigGroups.map(group => {
+                    if (group.length > 1) {
+                        // Potential duplicates - style with purple, bold
+                        return group.map(gig =>
+                            `<span style="color: purple; font-weight: bold;">${gig.name} (${new Date(gig.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})})</span>`
+                        ).join("<br>");
+                    } else {
+                        // Single gig - normal styling based on genre
+                        const gig = group[0];
+                        return `<span style="color: ${
+                            gig.genre_tags && gig.genre_tags.length > 0 ? "black" : "red"
+                        }">${gig.name}</span>`;
+                    }
+                }).join("<br>");
+                
                 weekCell.setAttribute("data-tooltip", tooltipContent);
+                
+                // If this is the current week and has a link, also set the tooltip on the link
+                if (week === "<b>This week</b>" && weekCell.querySelector('a')) {
+                    weekCell.querySelector('a').setAttribute("data-tooltip", tooltipContent);
+                }
             }
 
             row.appendChild(weekCell);
@@ -395,22 +467,61 @@ function renderTable(gigs, venueOwnersMap) {
  * Initialize custom tooltips using CSS.
  */
 function initializeTooltips() {
-  document.querySelectorAll("[data-tooltip]").forEach((cell) => {
-    cell.addEventListener("mouseover", (event) => {
-      const tooltip = document.createElement("div");
-      tooltip.className = "custom-tooltip";
-      tooltip.innerHTML = event.target.getAttribute("data-tooltip");
-      document.body.appendChild(tooltip);
-
-      const rect = event.target.getBoundingClientRect();
-      tooltip.style.left = `${rect.left + window.scrollX}px`;
-      tooltip.style.top = `${rect.bottom + window.scrollY}px`;
-
-      cell.addEventListener("mouseout", () => {
-        tooltip.remove();
-      });
-    });
+  // First, remove any existing tooltips
+  document.querySelectorAll(".custom-tooltip").forEach(tooltip => tooltip.remove());
+  
+  // Get all elements with tooltips
+  document.querySelectorAll("[data-tooltip]").forEach((element) => {
+    // Clean up any existing event listeners to avoid duplicates
+    element.removeEventListener("mouseover", showTooltip);
+    element.removeEventListener("mouseout", hideTooltip);
+    
+    // Add new event listeners
+    element.addEventListener("mouseover", showTooltip);
+    element.addEventListener("mouseout", hideTooltip);
   });
+  
+  // Function to show tooltip
+  function showTooltip(event) {
+    // Find the element with the data-tooltip attribute
+    // It could be the target or a parent element
+    let tooltipElement = event.target;
+    
+    // If target doesn't have data-tooltip, check if it's inside an element that does
+    if (!tooltipElement.hasAttribute("data-tooltip")) {
+      tooltipElement = event.target.closest("[data-tooltip]");
+    }
+    
+    if (!tooltipElement || !tooltipElement.hasAttribute("data-tooltip")) return;
+    
+    // Create and position the tooltip
+    const tooltip = document.createElement("div");
+    tooltip.className = "custom-tooltip";
+    tooltip.innerHTML = tooltipElement.getAttribute("data-tooltip");
+    document.body.appendChild(tooltip);
+
+    const rect = tooltipElement.getBoundingClientRect();
+    tooltip.style.left = `${rect.left + window.scrollX}px`;
+    tooltip.style.top = `${rect.bottom + window.scrollY}px`;
+    
+    // Store the tooltip on the element
+    tooltipElement._tooltip = tooltip;
+  }
+  
+  // Function to hide tooltip
+  function hideTooltip(event) {
+    // Find the element with the tooltip
+    let tooltipElement = event.target;
+    
+    if (!tooltipElement.hasAttribute("data-tooltip")) {
+      tooltipElement = event.target.closest("[data-tooltip]");
+    }
+    
+    if (tooltipElement && tooltipElement._tooltip) {
+      tooltipElement._tooltip.remove();
+      tooltipElement._tooltip = null;
+    }
+  }
 }
 
 /**
