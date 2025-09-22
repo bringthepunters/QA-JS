@@ -426,14 +426,13 @@ function renderTable(gigs, venueOwnersMap) {
                     if (group.length > 1) {
                         // Potential duplicates - style with purple, bold
                         return group.map(gig =>
-                            `<span style="color: purple; font-weight: bold;">${gig.name} (${new Date(gig.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})})</span>`
+                            `<a href="https://api.lml.live/admin/gigs/${gig.id}" target="_blank" style="color: purple; font-weight: bold;">${gig.name} (${new Date(gig.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})})</a>`
                         ).join("<br>");
                     } else {
                         // Single gig - normal styling based on genre
                         const gig = group[0];
-                        return `<span style="color: ${
-                            gig.genre_tags && gig.genre_tags.length > 0 ? "black" : "red"
-                        }">${gig.name}</span>`;
+                        const color = gig.genre_tags && gig.genre_tags.length > 0 ? "black" : "red";
+                        return `<a href="https://api.lml.live/admin/gigs/${gig.id}" target="_blank" style="color: ${color};">${gig.name}</a>`;
                     }
                 }).join("<br>");
                 
@@ -524,7 +523,7 @@ function initializeTooltips() {
 
     const rect = tooltipElement.getBoundingClientRect();
     tooltip.style.left = `${rect.left + window.scrollX}px`;
-    tooltip.style.top = `${rect.bottom + window.scrollY}px`;
+    tooltip.style.top = `${rect.bottom + window.scrollY - 5}px`; // Overlap by 5px
     
     // Store the tooltip on the element
     tooltipElement._tooltip = tooltip;

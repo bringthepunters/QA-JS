@@ -173,4 +173,5 @@ td.venue-column {
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
     z-index: 1000;
     max-width: 300px;
+    pointer-events: auto; /* Allow mouse events on the tooltip */
   }
