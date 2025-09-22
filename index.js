@@ -468,21 +468,42 @@ function renderTable(gigs, venueOwnersMap) {
  */
 function initializeTooltips() {
   // First, remove any existing tooltips
-  document.querySelectorAll(".custom-tooltip").forEach(tooltip => tooltip.remove());
+  removeAllTooltips();
+  
+  // Remove any existing global document click handler and add a new one
+  document.removeEventListener('click', removeAllTooltips);
+  document.addEventListener('click', removeAllTooltips);
   
   // Get all elements with tooltips
   document.querySelectorAll("[data-tooltip]").forEach((element) => {
     // Clean up any existing event listeners to avoid duplicates
+    element.removeEventListener("mouseenter", showTooltip);
+    element.removeEventListener("mouseleave", hideTooltip);
     element.removeEventListener("mouseover", showTooltip);
     element.removeEventListener("mouseout", hideTooltip);
     
-    // Add new event listeners
-    element.addEventListener("mouseover", showTooltip);
-    element.addEventListener("mouseout", hideTooltip);
+    // Add new event listeners (use both mouseenter/leave and mouseover/out for better coverage)
+    element.addEventListener("mouseenter", showTooltip);
+    element.addEventListener("mouseleave", hideTooltip);
   });
+  
+  // Helper function to remove all tooltips
+  function removeAllTooltips() {
+    document.querySelectorAll(".custom-tooltip").forEach(tooltip => tooltip.remove());
+    
+    // Also clear any tooltip references
+    document.querySelectorAll("[data-tooltip]").forEach(el => {
+      if (el._tooltip) {
+        el._tooltip = null;
+      }
+    });
+  }
   
   // Function to show tooltip
   function showTooltip(event) {
+    // Remove any existing tooltips first
+    removeAllTooltips();
+    
     // Find the element with the data-tooltip attribute
     // It could be the target or a parent element
     let tooltipElement = event.target;
@@ -497,6 +518,7 @@ function initializeTooltips() {
     // Create and position the tooltip
     const tooltip = document.createElement("div");
     tooltip.className = "custom-tooltip";
+    tooltip.id = "active-tooltip"; // Add an ID for easier reference
     tooltip.innerHTML = tooltipElement.getAttribute("data-tooltip");
     document.body.appendChild(tooltip);
 
@@ -506,6 +528,12 @@ function initializeTooltips() {
     
     // Store the tooltip on the element
     tooltipElement._tooltip = tooltip;
+    
+    // Add mouseout/leave events to the tooltip itself
+    tooltip.addEventListener("mouseleave", () => {
+      tooltip.remove();
+      tooltipElement._tooltip = null;
+    });
   }
   
   // Function to hide tooltip
@@ -517,8 +545,19 @@ function initializeTooltips() {
       tooltipElement = event.target.closest("[data-tooltip]");
     }
     
+    // Only remove if we're not moving to the tooltip itself
     if (tooltipElement && tooltipElement._tooltip) {
-      tooltipElement._tooltip.remove();
+      const tooltip = tooltipElement._tooltip;
+      
+      // Check if we're moving to the tooltip
+      const relatedTarget = event.relatedTarget;
+      if (relatedTarget && (relatedTarget === tooltip || tooltip.contains(relatedTarget))) {
+        // Moving to the tooltip itself, don't remove
+        return;
+      }
+      
+      // Otherwise, remove the tooltip
+      tooltip.remove();
       tooltipElement._tooltip = null;
     }
   }
