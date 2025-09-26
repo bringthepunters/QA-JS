@@ -153,7 +153,21 @@ async function fetchGigs(location) {
 
     // Hide loading message after completion
     progressMessage.style.display = "none";
-    return gigs;
+    
+    // Deduplicate gigs by ID to prevent false duplicates from overlapping week fetches
+    const uniqueGigs = [];
+    const seenIds = new Set();
+    
+    for (const gig of gigs) {
+        if (!seenIds.has(gig.id)) {
+            seenIds.add(gig.id);
+            uniqueGigs.push(gig);
+        }
+    }
+    
+    console.log(`Fetched ${gigs.length} total gigs, deduped to ${uniqueGigs.length} unique gigs`);
+    
+    return uniqueGigs;
 }
 
 /**
